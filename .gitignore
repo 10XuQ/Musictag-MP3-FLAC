@@ -1,0 +1,29 @@
+# 测试产物与本地依赖，不纳入版本管理
+tests/_work/
+tests/_delivery/
+tests/_ui/
+tests/_cli/
+tests/_batch_work/
+tests/_batch_in/
+tests/_batch_out/
+tests/_cli_batch_in/
+tests/_cli_batch_out/
+tests/_ncmcheck/
+preview/
+.deps/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="token" content="__TOKEN__">
+<title>musictag · 音乐标签封装</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="appbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">♪</span>
+    <div class="brand-text">
+      <h1>musictag</h1>
+      <p>音乐标签封装工具 · MP3 / FLAC</p>
+    </div>
+  </div>
+  <button id="theme-btn" class="icon-btn" type="button" title="切换亮色 / 暗色" aria-label="切换亮色或暗色模式">
+    <span id="theme-icon">🌙</span>
+  </button>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="功能">
+  <button class="tab is-on" type="button" role="tab" data-tab="single" aria-selected="true">单曲封装</button>
+  <button class="tab" type="button" role="tab" data-tab="batch" aria-selected="false">批量打包</button>
+</nav>
+
+<main>
+
+<section id="tab-single" class="tabpanel">
+
+  <!-- 未选文件时：拖拽 / 点击选择 -->
+  <section id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="选择或拖入音频文件">
+    <div class="dz-inner">
+      <div class="dz-icon" aria-hidden="true">🎵</div>
+      <p class="dz-title">把 MP3 或 FLAC 文件拖到这里</p>
+      <p class="dz-sub">或者 <span class="link">点击选择文件</span>（拖入的文件会先复制到工作目录）</p>
+      <p class="dz-hint">
+        <button id="pick-audio-2" class="btn ghost small" type="button">用系统对话框打开本机文件</button>
+        <span class="dz-hint-text">直接在原目录上操作，不会复制文件</span>
+      </p>
+    </div>
+    <input id="file-input" type="file" accept=".mp3,.flac,audio/mpeg,audio/flac" hidden>
+  </section>
+
+  <div id="drop-overlay" class="drop-overlay" hidden>
+    <div class="drop-overlay-inner">松开鼠标即可导入</div>
+  </div>
+
+  <div id="alert" class="alert" hidden></div>
+
+  <section id="editor" hidden>
+
+    <!-- 已选文件信息 -->
+    <div class="card filecard">
+      <div class="filecard-main">
+        <div class="chip" id="fmt-chip">—</div>
+        <div class="filecard-text">
+          <p class="file-name" id="file-name">—</p>
+          <p class="file-path" id="file-path">—</p>
+        </div>
+      </div>
+      <div class="filecard-side">
+        <span class="meta" id="file-size"></span>
+        <span class="meta" id="file-existing"></span>
+        <button class="btn ghost" type="button" data-pick-audio>更换文件</button>
+      </div>
+      <p class="audio-line" id="audio-line"></p>
+    </div>
+
+    <div class="columns">
+
+      <!-- 左列：标签信息 -->
+      <div class="col">
+        <div class="card">
+          <h2 class="card-title">标签信息</h2>
+
+          <label class="field">
+            <span class="label-text">歌曲名称</span>
+            <input id="title" type="text" placeholder="例如：夜航" autocomplete="off">
+          </label>
+
+          <div class="field">
+            <span class="label-text">作者<span class="hint">（可以填多个）</span></span>
+            <div id="artists" class="artists"></div>
+            <button id="add-artist" class="btn ghost small" type="button">＋ 添加一位作者</button>
+          </div>
+
+          <label class="field">
+            <span class="label-text">专辑名称</span>
+            <input id="album" type="text" placeholder="例如：城市夜曲" autocomplete="off">
+          </label>
+
+          <label class="field">
+            <span class="label-text">发行日期</span>
+            <input id="date" type="text" placeholder="例如：2024-05-01 或 2024-05" autocomplete="off">
+            <span class="hint" id="date-hint">支持 2024-05-01 / 2024/5/1 / 2024年5月1日 / 20240501，都会统一成 年-月-日</span>
+          </label>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">歌词</h2>
+            <div class="card-head-actions">
+              <button id="pick-lyrics" class="btn ghost small" type="button">从文件导入</button>
+              <button id="clear-lyrics" class="btn ghost small" type="button">清空</button>
+            </div>
+          </div>
+
+          <div class="segmented" role="radiogroup" aria-label="歌词格式">
+            <label class="seg">
+              <input type="radio" name="lyrics-kind" value="text" checked>
+              <span>纯文本</span>
+            </label>
+            <label class="seg">
+              <input type="radio" name="lyrics-kind" value="lrc">
+              <span>LRC 时间轴</span>
+            </label>
+          </div>
+
+          <textarea id="lyrics-text" rows="9" placeholder="直接粘贴歌词，或点「从文件导入」选择 .txt / .lrc 文件"></textarea>
+          <p class="hint" id="lyrics-hint"></p>
+        </div>
+      </div>
+
+      <!-- 右列：封面 + 输出 -->
+      <div class="col">
+        <div class="card">
+          <h2 class="card-title">封面图片</h2>
+          <div class="cover-box">
+            <img id="cover-img" alt="封面预览" hidden>
+            <div id="cover-empty" class="cover-empty">
+              <span aria-hidden="true">🖼️</span>
+              <p>暂无封面</p>
+            </div>
+          </div>
+          <p class="hint" id="cover-info"></p>
+          <div class="row-actions">
+            <button id="pick-cover" class="btn ghost small" type="button">选择图片</button>
+            <button id="clear-cover" class="btn ghost small" type="button">删除封面</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">输出</h2>
+          <label class="field">
+            <span class="label-text">输出文件</span>
+            <div class="input-row">
+              <input id="output" type="text" autocomplete="off" spellcheck="false">
+              <button id="pick-folder" class="btn ghost small" type="button">选择位置</button>
+            </div>
+          </label>
+          <label class="check">
+            <input id="overwrite" type="checkbox">
+            <span>覆盖已存在的输出文件</span>
+          </label>
+          <p class="hint">默认不覆盖原文件：输出写到新路径，源文件始终不动。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 进度与操作 -->
+    <div class="card actions">
+      <div class="progress" id="progress" hidden>
+        <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+        <p class="stage" id="stage-text">准备中…</p>
+      </div>
+      <div class="buttons">
+        <button id="dry-run" class="btn ghost" type="button">试运行（不写文件）</button>
+        <button id="write" class="btn primary" type="button">开始封装</button>
+      </div>
+    </div>
+
+    <!-- 试运行结果 -->
+    <div class="card" id="preview-card" hidden>
+      <h2 class="card-title">将要做的改动</h2>
+      <div id="preview-body"></div>
+    </div>
+
+    <!-- 写入结果 -->
+    <div class="card" id="result-card" hidden>
+      <div class="result-head">
+        <span class="result-icon" id="result-icon">✔</span>
+        <div>
+          <h2 class="card-title" id="result-title">完成</h2>
+          <p class="file-path" id="result-path"></p>
+        </div>
+      </div>
+      <div class="row-actions">
+        <button id="open-folder" class="btn primary small" type="button" hidden>打开输出文件夹</button>
+      </div>
+      <div id="result-body"></div>
+    </div>
+
+  </section>
+
+</section>
+
+<section id="tab-batch" class="tabpanel" hidden>
+
+  <div id="batch-drop" class="dropzone compact" tabindex="0" role="button" aria-label="选择或拖入要打包的文件夹">
+    <div class="dz-inner">
+      <div class="dz-icon" aria-hidden="true">📁</div>
+      <p class="dz-title">把整个文件夹拖到这里</p>
+      <p class="dz-sub">或者 <span class="link">点击选择文件夹</span>；也会自动读取文件夹里配对的 .lrc 歌词</p>
+      <p class="dz-hint">
+        <button id="batch-pick-src-2" class="btn ghost small" type="button">用系统对话框选择文件夹</button>
+        <span class="dz-hint-text">支持 mp3 / flac，以及网易云下载的加密 .ncm</span>
+      </p>
+    </div>
+  </div>
+
+  <div id="batch-alert" class="alert" hidden></div>
+
+  <section id="batch-panel" hidden>
+
+    <div class="card">
+      <h2 class="card-title">目录</h2>
+      <label class="field">
+        <span class="label-text">源目录<span class="hint">（要处理的歌放在这里）</span></span>
+        <div class="input-row">
+          <input id="batch-src" type="text" autocomplete="off" spellcheck="false" placeholder="例如：E:\CloudMusic\VipSongsDownload">
+          <button id="batch-pick-src" class="btn ghost small" type="button">选择文件夹</button>
+        </div>
+      </label>
+      <label class="field">
+        <span class="label-text">输出目录<span class="hint">（打包好的成品写到这里，源文件不动）</span></span>
+        <div class="input-row">
+          <input id="batch-out" type="text" autocomplete="off" spellcheck="false" placeholder="留空则用 源目录\_packed">
+          <button id="batch-pick-out" class="btn ghost small" type="button">选择文件夹</button>
+        </div>
+      </label>
+    </div>
+
+    <div class="card" id="batch-summary-card" hidden>
+      <div class="card-head">
+        <h2 class="card-title">扫描结果</h2>
+        <div class="card-head-actions">
+          <button id="batch-rescan" class="btn ghost small" type="button">重新扫描</button>
+        </div>
+      </div>
+      <p class="batch-summary" id="batch-summary-text"></p>
+      <ul class="notes" id="batch-notes"></ul>
+      <details id="batch-orphans" hidden>
+        <summary id="batch-orphan-summary"></summary>
+        <ul class="notes" id="batch-orphan-list"></ul>
+      </details>
+    </div>
+
+    <div class="card" id="batch-list-card" hidden>
+      <div class="card-head">
+        <h2 class="card-title">文件清单</h2>
+        <div class="card-head-actions">
+          <span class="hint" id="batch-count"></span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="batch-table">
+          <thead>
+            <tr><th>类型</th><th>文件</th><th>配对到的歌词</th><th>状态</th></tr>
+          </thead>
+          <tbody id="batch-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">选项</h2>
+      <div class="field">
+        <span class="label-text">歌词写法</span>
+        <div class="segmented" role="radiogroup" aria-label="歌词写法">
+          <label class="seg">
+            <input type="radio" name="batch-lyrics" value="lrc" checked>
+            <span>保留时间轴（LRC）</span>
+          </label>
+          <label class="seg">
+            <input type="radio" name="batch-lyrics" value="text">
+            <span>纯文本</span>
+          </label>
+          <label class="seg">
+            <input type="radio" name="batch-lyrics" value="raw">
+            <span>原样不改</span>
+          </label>
+        </div>
+        <span class="hint">网易云下载的 .lrc 开头几行是制作信息（JSON），选「保留时间轴」会把它们转成正常歌词行。</span>
+      </div>
+      <label class="check">
+        <input id="batch-only-lyrics" type="checkbox" checked>
+        <span>只处理配到歌词的文件（其余不复制，直接跳过）</span>
+      </label>
+      <label class="check">
+        <input id="batch-overwrite" type="checkbox">
+        <span>覆盖已存在的输出文件</span>
+      </label>
+    </div>
+
+    <div class="card actions">
+      <div class="progress" id="batch-progress" hidden>
+        <div class="progress-track"><div class="progress-bar" id="batch-progress-bar"></div></div>
+        <p class="stage" id="batch-stage">准备中…</p>
+      </div>
+      <div class="buttons">
+        <button id="batch-scan" class="btn ghost" type="button">扫描目录</button>
+        <button id="batch-run" class="btn primary" type="button" disabled>开始打包</button>
+        <button id="batch-open" class="btn ghost" type="button" hidden>打开输出文件夹</button>
+      </div>
+    </div>
+
+    <div class="card" id="batch-result-card" hidden>
+      <div class="result-head">
+        <span class="result-icon" id="batch-result-icon">✔</span>
+        <div>
+          <h2 class="card-title" id="batch-result-title">完成</h2>
+          <p class="file-path" id="batch-result-path"></p>
+        </div>
+      </div>
+      <div id="batch-result-body"></div>
+    </div>
+
+  </section>
+
+</section>
+
+</main>
+
+<footer class="footer">
+  <span>只写标签、不重新编码 · 音频数据逐字节校验 · 界面只调用 musictag.core</span>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
