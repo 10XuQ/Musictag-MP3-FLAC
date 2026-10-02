@@ -3,7 +3,7 @@
 **把歌曲名称、作者、专辑名称、发行日期、封面图片、歌词写进 MP3 / FLAC —— 只改标签区，音频数据逐字节不动。**
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![依赖](https://img.shields.io/badge/依赖-mutagen%20(纯%20Python)-4B8BBE)](https://mutagen.readthedocs.io/)
+[![依赖](https://img.shields.io/badge/依赖-mutagen-4B8BBE)](https://mutagen.readthedocs.io/)
 [![界面](https://img.shields.io/badge/界面-标准库%20Web%20UI-8A2BE2)](#图形界面)
 [![测试](https://img.shields.io/badge/测试-567%20项通过-3fb950)](#测试)
 [![许可](https://img.shields.io/badge/许可-MIT-blue)](LICENSE)
