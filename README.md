@@ -111,10 +111,10 @@ python musictag/webui.py
 
 ```bash
 # 先看看会做什么（不写任何文件）
-python musictag/batch.py "E:\CloudMusic\VipSongsDownload" --dry-run
+python musictag/batch.py "D:\CloudMusic\VipSongsDownload" --dry-run
 
 # 只处理配到歌词的那几首（推荐：没歌词的不复制，省时间省空间）
-python musictag/batch.py "E:\CloudMusic\VipSongsDownload" --only-with-lyrics
+python musictag/batch.py "D:\CloudMusic\VipSongsDownload" --only-with-lyrics
 
 # 全部处理，输出到指定目录
 python musictag/batch.py "D:\我的歌" --out "D:\打包结果" --lyrics lrc

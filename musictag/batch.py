@@ -562,15 +562,15 @@ def build_parser():
         epilog=(
             "示例\n"
             "  先看看会处理哪些文件（不写任何东西）：\n"
-            "    python batch.py \"E:\\CloudMusic\\VipSongsDownload\" --dry-run\n\n"
+            "    python batch.py \"D:\\CloudMusic\\VipSongsDownload\" --dry-run\n\n"
             "  直接跑（输出到 源目录\\_packed）：\n"
-            "    python batch.py \"E:\\CloudMusic\\VipSongsDownload\"\n\n"
+            "    python batch.py \"D:\\CloudMusic\\VipSongsDownload\"\n\n"
             "  输出到别处，并覆盖上次的结果：\n"
-            "    python batch.py \"E:\\CloudMusic\\VipSongsDownload\" --out \"F:\\打包\" --force\n\n"
+            "    python batch.py \"D:\\CloudMusic\\VipSongsDownload\" --out \"D:\\打包结果\" --force\n\n"
             "  只处理前 3 个（先试试水）：\n"
-            "    python batch.py \"E:\\CloudMusic\\VipSongsDownload\" --limit 3\n\n"
+            "    python batch.py \"D:\\CloudMusic\\VipSongsDownload\" --limit 3\n\n"
             "  歌词写成纯文本（去掉时间轴）：\n"
-            "    python batch.py \"E:\\CloudMusic\\VipSongsDownload\" --lyrics text\n"
+            "    python batch.py \"D:\\CloudMusic\\VipSongsDownload\" --lyrics text\n"
         ),
     )
     p.add_argument("src_dir", help="下载目录（里面有音频/.ncm 和同名 .lrc）")
